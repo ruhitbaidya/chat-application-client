@@ -18,7 +18,7 @@ const Dashboard = () => {
   const [showUser, setShowUser] = useState(null);
   // const [newMessage, setNewMessage] = useState([])
   const socket = useMemo(
-    () => io("https://chat-application-server-r66f.onrender.com"),
+    () => io("http://localhost:5000"),
     []
   );
   const msgText = useRef(null);
@@ -34,20 +34,20 @@ const Dashboard = () => {
   useEffect(() => {
     axios
       .get(
-        `https://chat-application-server-r66f.onrender.com/getSingaluser/${user?.email}`
+        `http://localhost:5000/getSingaluser/${user?.email}`
       )
       .then((res) => setShowUser(res.data))
       .catch((err) => console.log(err));
     axios
       .get(
-        `https://chat-application-server-r66f.onrender.com/findReciver/${user?.email}`
+        `http://localhost:5000/findReciver/${user?.email}`
       )
       .then((res) => {
         setReceiver(res.data);
       });
     axios
       .get(
-        `https://chat-application-server-r66f.onrender.com/getAllUser/${user?.email}`
+        `http://localhost:5000/getAllUser/${user?.email}`
       )
       .then((res) => {
         setAllUser(res.data);
@@ -66,7 +66,7 @@ const Dashboard = () => {
     setReceiverId(item?.user?.email);
     axios
       .get(
-        `https://chat-application-server-r66f.onrender.com/message/${item?.conversionid}`
+        `http://localhost:5000/message/${item?.conversionid}`
       )
       .then((res) => {
         setMessage(res.data);
@@ -91,7 +91,7 @@ const Dashboard = () => {
     socket.emit("message", messageDatas);
     axios
       .post(
-        "https://chat-application-server-r66f.onrender.com/message",
+        "http://localhost:5000/message",
         messageDatas
       )
       .then((res) => {
@@ -112,7 +112,7 @@ const Dashboard = () => {
 
   const createConversition = (senderId, receverId) => {
     axios
-      .post(`https://chat-application-server-r66f.onrender.com/conversations`, {
+      .post(`http://localhost:5000/conversations`, {
         senderId,
         receverId,
       })
@@ -121,7 +121,7 @@ const Dashboard = () => {
         if (res.data) {
           axios
             .get(
-              `https://chat-application-server-r66f.onrender.com/findReciver/${user?.email}`
+              `http://localhost:5000/findReciver/${user?.email}`
             )
             .then((res) => {
               // console.log(res.data)
