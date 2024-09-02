@@ -16,7 +16,7 @@ const Dashboard = () => {
   const [reciverId, setReceiverId] = useState(null);
   const [showUser, setShowUser] = useState(null);
   // const [newMessage, setNewMessage] = useState([])
-  const socket = useMemo(()=> io("http://localhost:7000") ,[])
+  const socket = useMemo(()=> io("https://chat-application-server-k9hd.onrender.com") ,[])
   const msgText = useRef(null)
   useEffect(()=>{
     socket.on('connect', ()=>{
@@ -28,15 +28,15 @@ const Dashboard = () => {
     }
   }, [socket, user])
   useEffect(() => {
-    axios.get(`http://localhost:7000/getSingaluser/${user?.email}`)
+    axios.get(`https://chat-application-server-k9hd.onrender.com/getSingaluser/${user?.email}`)
     .then((res)=> setShowUser(res.data))
     .catch((err)=> console.log(err))
     axios
-      .get(`http://localhost:7000/findReciver/${user?.email}`)
+      .get(`https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`)
       .then((res) => {
         setReceiver(res.data);
       });
-    axios.get(`http://localhost:7000/getAllUser/${user?.email}`).then((res) => {
+    axios.get(`https://chat-application-server-k9hd.onrender.com/getAllUser/${user?.email}`).then((res) => {
       setAllUser(res.data);
     });
   }, [user]);
@@ -52,7 +52,7 @@ const Dashboard = () => {
     setDisName(item);
     setReceiverId(item?.user?.email)
     axios
-      .get(`http://localhost:7000/message/${item?.conversionid}`)
+      .get(`https://chat-application-server-k9hd.onrender.com/message/${item?.conversionid}`)
       .then((res) => {
         setMessage(res.data);
       });
@@ -70,7 +70,7 @@ const Dashboard = () => {
       message: textmsg,
     };
     socket.emit('message', messageDatas)
-    axios.post("http://localhost:7000/message", messageDatas).then((res) => {
+    axios.post("https://chat-application-server-k9hd.onrender.com/message", messageDatas).then((res) => {
       console.log(res.data);
       if(msgText.current){
          msgText.current.value = '';
@@ -89,12 +89,12 @@ const Dashboard = () => {
 
   const createConversition = (senderId, receverId) => {
     axios
-      .post(`http://localhost:7000/conversations`, { senderId, receverId })
+      .post(`https://chat-application-server-k9hd.onrender.com/conversations`, { senderId, receverId })
       .then((res) => {
         console.log(res.data);
         if (res.data) {
           axios
-            .get(`http://localhost:7000/findReciver/${user?.email}`)
+            .get(`https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`)
             .then((res) => {
               // console.log(res.data)
               setReceiver(res.data);
