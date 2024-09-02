@@ -3,6 +3,7 @@ import { IoMdAdd } from "react-icons/io";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../UserAuth/UsersAuth";
 import { io } from "socket.io-client";
+import { ToastContainer, toast } from 'react-toastify';
 import axios from "axios";
 
 const Dashboard = () => {
@@ -69,13 +70,19 @@ const Dashboard = () => {
       reciverE : reciverId,
       message: textmsg,
     };
-    socket.emit('message', messageDatas)
-    axios.post("https://chat-application-server-k9hd.onrender.com/message", messageDatas).then((res) => {
-      console.log(res.data);
-      if(msgText.current){
-         msgText.current.value = '';
-     }
-    });
+
+    if(textmsg === ''){
+      toast.error('Write Any Message')
+    }else{
+      socket.emit('message', messageDatas)
+      axios.post("https://chat-application-server-k9hd.onrender.com/message", messageDatas).then((res) => {
+        console.log(res.data);
+        if(msgText.current){
+           msgText.current.value = '';
+       }
+      });
+    }
+   
   };
   
   useEffect(() => {
@@ -112,6 +119,7 @@ const Dashboard = () => {
           <div>
             <h3 className="text-2xl font-bold">{showUser?.name}</h3>
           </div>
+          <ToastContainer />
         </div>
         <div className="flex-1 overflow-y-auto">
           <ul>
