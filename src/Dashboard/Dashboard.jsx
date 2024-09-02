@@ -3,11 +3,11 @@ import { IoMdAdd } from "react-icons/io";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../UserAuth/UsersAuth";
 import { io } from "socket.io-client";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 
 const Dashboard = () => {
-  const { user ,logOut} = useContext(UserContext);
+  const { user, logOut } = useContext(UserContext);
   const [receiver, setReceiver] = useState([]);
   const [message, setMessage] = useState([]);
   const [disName, setDisName] = useState(null);
@@ -17,76 +17,92 @@ const Dashboard = () => {
   const [reciverId, setReceiverId] = useState(null);
   const [showUser, setShowUser] = useState(null);
   // const [newMessage, setNewMessage] = useState([])
-  const socket = useMemo(()=> io("https://chat-application-server-k9hd.onrender.com") ,[])
-  const msgText = useRef(null)
-  useEffect(()=>{
-    socket.on('connect', ()=>{
-      socket.emit('user', user.email)
-    })
-
-    return ()=>{
-      socket.disconnect();
-    }
-  }, [socket, user])
+  const socket = useMemo(
+    () => io("https://chat-application-server-k9hd.onrender.com"),
+    []
+  );
+  const msgText = useRef(null);
   useEffect(() => {
-    axios.get(`https://chat-application-server-k9hd.onrender.com/getSingaluser/${user?.email}`)
-    .then((res)=> setShowUser(res.data))
-    .catch((err)=> console.log(err))
+    socket.on("connect", () => {
+      socket.emit("user", user.email);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket, user]);
+  useEffect(() => {
     axios
-      .get(`https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`)
+      .get(
+        `https://chat-application-server-k9hd.onrender.com/getSingaluser/${user?.email}`
+      )
+      .then((res) => setShowUser(res.data))
+      .catch((err) => console.log(err));
+    axios
+      .get(
+        `https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`
+      )
       .then((res) => {
         setReceiver(res.data);
       });
-    axios.get(`https://chat-application-server-k9hd.onrender.com/getAllUser/${user?.email}`).then((res) => {
-      setAllUser(res.data);
-    });
+    axios
+      .get(
+        `https://chat-application-server-k9hd.onrender.com/getAllUser/${user?.email}`
+      )
+      .then((res) => {
+        setAllUser(res.data);
+      });
   }, [user]);
 
-  useEffect(()=>{
-    const handelmsgRun = (data)=>{
-      console.log(data)
-      setMessage(prev =>[...prev, data])
-    }
-    socket.on('addMsg', handelmsgRun)
-  }, [socket])
+  useEffect(() => {
+    const handelmsgRun = (data) => {
+      console.log(data);
+      setMessage((prev) => [...prev, data]);
+    };
+    socket.on("addMsg", handelmsgRun);
+  }, [socket]);
   const handelMessage = (item) => {
     setDisName(item);
-    setReceiverId(item?.user?.email)
+    setReceiverId(item?.user?.email);
     axios
-      .get(`https://chat-application-server-k9hd.onrender.com/message/${item?.conversionid}`)
+      .get(
+        `https://chat-application-server-k9hd.onrender.com/message/${item?.conversionid}`
+      )
       .then((res) => {
         setMessage(res.data);
       });
   };
 
   const messageSend = () => {
-    let textmsg = '';
-    if(msgText.current){
-       textmsg = msgText.current.value;
+    let textmsg = "";
+    if (msgText.current) {
+      textmsg = msgText.current.value;
     }
     const messageDatas = {
       conversionid: disName.conversionid,
       senderId: user.email,
-      reciverE : reciverId,
+      reciverE: reciverId,
       message: textmsg,
     };
 
-    if(textmsg === ''){
-      toast.error('Write Any Message')
-    }else{
-      socket.emit('message', messageDatas)
-      axios.post("https://chat-application-server-k9hd.onrender.com/message", messageDatas).then((res) => {
-        console.log(res.data);
-        if(msgText.current){
-           msgText.current.value = '';
-       }
-      });
+    if (textmsg === "") {
+      return toast.error("Write Any Message");
     }
-   
+    socket.emit("message", messageDatas);
+    axios
+      .post(
+        "https://chat-application-server-k9hd.onrender.com/message",
+        messageDatas
+      )
+      .then((res) => {
+        console.log(res.data);
+        if (msgText.current) {
+          msgText.current.value = "";
+        }
+      });
   };
-  
-  useEffect(() => {
 
+  useEffect(() => {
     const filteredUsers = alluser.filter(
       (user) => !receiver.some((single) => single.user.email === user.email)
     );
@@ -96,12 +112,17 @@ const Dashboard = () => {
 
   const createConversition = (senderId, receverId) => {
     axios
-      .post(`https://chat-application-server-k9hd.onrender.com/conversations`, { senderId, receverId })
+      .post(`https://chat-application-server-k9hd.onrender.com/conversations`, {
+        senderId,
+        receverId,
+      })
       .then((res) => {
         console.log(res.data);
         if (res.data) {
           axios
-            .get(`https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`)
+            .get(
+              `https://chat-application-server-k9hd.onrender.com/findReciver/${user?.email}`
+            )
             .then((res) => {
               // console.log(res.data)
               setReceiver(res.data);
@@ -110,7 +131,7 @@ const Dashboard = () => {
       });
   };
 
-  console.log(message)
+  console.log(message);
   return (
     <div className="flex flex-col lg:flex-row h-screen font-sans">
       {/* User Chat List */}
@@ -147,7 +168,10 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold">
             {disName?.user?.name || "No Name"}
           </h2>
-          <button onClick={()=> logOut()} className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-500">
+          <button
+            onClick={() => logOut()}
+            className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-500"
+          >
             Logout
           </button>
         </div>
@@ -180,7 +204,7 @@ const Dashboard = () => {
         </div>
         <div className="p-4 border-t border-gray-300 flex items-center space-x-2">
           <input
-            ref={msgText}            
+            ref={msgText}
             type="text"
             placeholder="Type a message..."
             className="w-full p-3 border rounded-lg"
