@@ -17,7 +17,7 @@ const Register = () => {
         userSignUp(data.email, data.password)
         .then((res)=> {
             if(res.user){
-                axios.post('https://chat-application-server-i0fq.onrender.com/createUser', {name : data.name, email : data.email})
+                axios.post('https://chat-application-server-cj1d.onrender.com/createUser', {name : data.name, email : data.email})
                 .then((res)=>{
                     if(res.data.insertedId){
                         console.log(res)
